@@ -85,7 +85,7 @@ func gitDirToLog(dirCh, logCh chan string) {
 		pjName := filepath.Base(pwd)
 		logCh <- fmt.Sprintf("Project: %s", pjName)
 		since := time.Now().AddDate(0, 0, -1).Format(time.RFC3339)
-		out, err := exec.Command("git", "log", "--oneline", "--since", since).Output()
+		out, err := exec.Command("git", "reflog", "--oneline", "--date=short", "--pretty=format:%ad %an", "--since", since).Output()
 		if err != nil {
 			logCh <- err.Error()
 			close(logCh)
