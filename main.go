@@ -23,31 +23,44 @@ func main() {
 	app.Action = func(c *cli.Context) {
 		ch := make(chan string)
 		pwd, _ := os.Getwd()
-		fmt.Println(pwd)
-		go getGitLists(pwd, ch)
+		go search(pwd, ch)
 		for {
-			path, ok := <-ch
+			output, ok := <-ch
 			if !ok {
 				return
 			}
-			fmt.Println(path)
+			fmt.Println(output)
 		}
 	}
 
 	app.Run(os.Args)
 }
 
-func getGitLists(root string, ch chan string) {
+func search(root string, ch chan string) {
+	dirCh := make(chan string)
+	logCh := make(chan string)
+	go gitDirSearch(root, dirCh)
+	go gitDirToLog(dirCh, logCh)
+	for {
+		log, ok := <-logCh
+		if !ok {
+			break
+		}
+		fmt.Println(log)
+	}
+	close(ch)
+}
+
+func gitDirSearch(root string, dirCh chan string) {
 	err := filepath.Walk(root,
 		func(path string, info os.FileInfo, err error) error {
 			rel, err := filepath.Rel(root, path)
 			if err != nil {
-				close(ch)
 				return nil
 			}
 			if filepath.Base(rel) == ".git" {
 				path, _ := filepath.Abs(rel)
-				ch <- path
+				dirCh <- path
 				return nil
 			}
 			return nil
@@ -56,5 +69,15 @@ func getGitLists(root string, ch chan string) {
 	if err != nil {
 		fmt.Println(1, err)
 	}
-	close(ch)
+	close(dirCh)
+}
+func gitDirToLog(dirCh, logCh chan string) {
+	for {
+		dir, ok := <-dirCh
+		if !ok {
+			close(logCh)
+			return
+		}
+		logCh <- dir + " hoge"
+	}
 }
