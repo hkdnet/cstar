@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/codegangsta/cli"
@@ -31,6 +32,7 @@ func main() {
 			}
 			fmt.Println(output)
 		}
+		os.Chdir(pwd)
 	}
 
 	app.Run(os.Args)
@@ -59,7 +61,6 @@ func gitDirSearch(root string, dirCh chan string) {
 				return nil
 			}
 			if filepath.Base(rel) == ".git" {
-				path, _ := filepath.Abs(rel)
 				dirCh <- path
 				return nil
 			}
@@ -78,6 +79,15 @@ func gitDirToLog(dirCh, logCh chan string) {
 			close(logCh)
 			return
 		}
-		logCh <- dir + " hoge"
+		os.Chdir(dir + "/../")
+		pwd, _ := os.Getwd()
+		logCh <- fmt.Sprintf("...move to %s\n", pwd)
+		out, err := exec.Command("git", "log", "--oneline").Output()
+		if err != nil {
+			logCh <- err.Error()
+			close(logCh)
+			return
+		}
+		logCh <- string(out)
 	}
 }
