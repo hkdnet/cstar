@@ -40,19 +40,12 @@ func main() {
 	app.Run(os.Args)
 }
 
-func search(root string, ch chan string) {
+func search(root string, outCh chan string) {
 	dirCh := make(chan string)
-	logCh := make(chan CommitCount)
+	ccCh := make(chan CommitCount)
 	go gitDirSearch(root, dirCh)
-	go gitDirToLog(dirCh, logCh)
-	for {
-		log, ok := <-logCh
-		if !ok {
-			break
-		}
-		fmt.Println(log)
-	}
-	close(ch)
+	go gitDirToLog(dirCh, ccCh)
+	go decorateLine(ccCh, outCh)
 }
 
 type CommitCount struct {
@@ -124,4 +117,15 @@ func sumsToArray(m map[string]int, len int) []int {
 		counts[i] = m[key]
 	}
 	return counts
+}
+
+func decorateLine(ccCh chan CommitCount, outCh chan string) {
+	for {
+		cc, ok := <-ccCh
+		if !ok {
+			close(outCh)
+			return
+		}
+		outCh <- fmt.Sprintf("%-10s %s", cc.ProjectName, strings.Trim(fmt.Sprintf("%v", cc.Count), "[]"))
+	}
 }
