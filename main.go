@@ -60,24 +60,21 @@ type CommitCount struct {
 	Count       []int
 }
 
-func gitDirSearch(root string, dirCh chan string) {
+func gitDirSearch(root string, dirCh chan string) error {
 	err := filepath.Walk(root,
 		func(path string, info os.FileInfo, err error) error {
 			rel, err := filepath.Rel(root, path)
 			if err != nil {
-				return nil
+				return err
 			}
 			if filepath.Base(rel) == ".git" {
 				dirCh <- path
-				return nil
 			}
 			return nil
 		})
 
-	if err != nil {
-		fmt.Println(1, err)
-	}
 	close(dirCh)
+	return err
 }
 func gitDirToLog(dirCh chan string, logCh chan CommitCount) {
 	for {
