@@ -59,15 +59,6 @@ type CommitCount struct {
 	ProjectName string
 	Count       []int
 }
-type Commit struct {
-	ProjectName string
-	At          time.Time
-	Author      string
-}
-
-func (c Commit) String() string {
-	return fmt.Sprintf("%s %s %s", c.ProjectName, c.At.Format("2006-01-02"), c.Author)
-}
 
 func gitDirSearch(root string, dirCh chan string) {
 	err := filepath.Walk(root,
@@ -99,29 +90,25 @@ func gitDirToLog(dirCh chan string, logCh chan CommitCount) {
 		pwd, _ := os.Getwd()
 		pjName := filepath.Base(pwd)
 		dayCount := 7
-		since := time.Now().AddDate(0, 0, -dayCount).Format(time.RFC3339)
-		out, err := exec.Command("git", "reflog", "--oneline", "--date=short", "--pretty=format:%ad %an", "--since", since).Output()
-		if err != nil {
+		if raw_log, err := execGitLog(dayCount); err != nil {
 			close(logCh)
 			return
-		}
-		raw_log := string(out)
-		if raw_log == "" {
+		} else if raw_log == "" {
 			logCh <- CommitCount{pjName, make([]int, dayCount)}
 			continue
+		} else {
+			m := sumsGroupByDate(raw_log)
+			logCh <- CommitCount{pjName, sumsToArray(m, dayCount)}
 		}
-		counts := make([]int, dayCount)
-		/*
-			logs := strings.Split(raw_log, "\n")
-			for _, log := range logs {
-				 arr := strings.Split(log, " ")
-				 at, _ := time.Parse("2006-01-02", arr[0])
-			}
-		*/
-		logCh <- CommitCount{pjName, counts}
 	}
 }
-func logToCountPerDay(logs string) map[string]int {
+func execGitLog(len int) (string, error) {
+	since := time.Now().AddDate(0, 0, -len).Format(time.RFC3339)
+	out, err := exec.Command("git", "reflog", "--oneline", "--date=short", "--pretty=format:%ad %an", "--since", since).Output()
+	return string(out), err
+}
+
+func sumsGroupByDate(logs string) map[string]int {
 	ret := map[string]int{}
 	for _, log := range strings.Split(logs, "\n") {
 		tmp := strings.Split(log, " ")
@@ -130,4 +117,14 @@ func logToCountPerDay(logs string) map[string]int {
 		ret[tmp[0]] = count + 1
 	}
 	return ret
+}
+
+// the tail is the most recent
+func sumsToArray(m map[string]int, len int) []int {
+	counts := make([]int, len)
+	for i := 0; i < len; i += 1 {
+		key := time.Now().AddDate(0, 0, i+1-len).Format("2006-01-02")
+		counts[i] = m[key]
+	}
+	return counts
 }

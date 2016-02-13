@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"testing"
+	"time"
 )
 
 func TestGitDirSearch(t *testing.T) {
@@ -52,12 +53,34 @@ func afterTestGitDirSearch(pwd string) error {
 	return nil
 }
 
-func TestLogToCountPerDay(t *testing.T) {
+func TestSumsGroupByDate(t *testing.T) {
 	logs := "key1 hoge\nkey2 fuga^\nkey1 piyo"
-	ret := logToCountPerDay(logs)
+	ret := sumsGroupByDate(logs)
 	if val1, ok := ret["key1"]; !ok {
 		t.Errorf("map should have key1: %v", ret)
 	} else if val1 != 2 {
 		t.Errorf("the value of key1 should be 2, but %v", val1)
+	}
+}
+func TestSumsToArray(t *testing.T) {
+	today := time.Now()
+	m := map[string]int{}
+	length := 3
+	m[today.Format("2006-01-02")] = 1
+	m[today.AddDate(0, 0, -1).Format("2006-01-02")] = 2
+	m[today.AddDate(0, 0, -2).Format("2006-01-02")] = 3
+	m[today.AddDate(0, 0, -3).Format("2006-01-02")] = 4
+	ret := sumsToArray(m, length)
+	if got, want := len(ret), length; got != want {
+		t.Errorf("got: %v\nwant: %v", got, want)
+	}
+	if got, want := ret[0], 3; got != want {
+		t.Errorf("got: %v\nwant: %v", got, want)
+	}
+	if got, want := ret[1], 2; got != want {
+		t.Errorf("got: %v\nwant: %v", got, want)
+	}
+	if got, want := ret[2], 1; got != want {
+		t.Errorf("got: %v\nwant: %v", got, want)
 	}
 }
