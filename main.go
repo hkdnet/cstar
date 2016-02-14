@@ -25,27 +25,27 @@ func main() {
 	app.Commands = Commands
 	app.CommandNotFound = CommandNotFound
 	app.Action = func(c *cli.Context) {
-		ccCh := make(chan CommitCount)
 		pwd, _ := os.Getwd()
-		go search(pwd, ccCh)
-		ccs := []CommitCount{}
-		for {
-			cc, ok := <-ccCh
-			if !ok {
-				break
-			}
-			ccs = append(ccs, cc)
-		}
-		printCommitCounts(ccs)
+		search(pwd)
 	}
 
 	app.Run(os.Args)
 }
 
-func search(root string, ccCh chan CommitCount) {
+func search(root string) {
+	ccCh := make(chan CommitCount)
 	dirCh := make(chan string)
 	go gitDirSearch(root, dirCh)
 	go gitDirToLog(dirCh, ccCh)
+	ccs := []CommitCount{}
+	for {
+		cc, ok := <-ccCh
+		if !ok {
+			break
+		}
+		ccs = append(ccs, cc)
+	}
+	printCommitCounts(ccs)
 }
 
 type CommitCount struct {
