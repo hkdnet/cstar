@@ -114,7 +114,7 @@ func sumsToArray(m map[string]int, len int) []int {
 	counts := make([]int, len)
 	for i := 0; i < len; i += 1 {
 		key := time.Now().AddDate(0, 0, i+1-len).Format("2006-01-02")
-		counts[i] = m[key]
+		counts[len-1-i] = m[key]
 	}
 	return counts
 }
@@ -128,7 +128,7 @@ func printHeader(length int) {
 	for i := 0; i < length+1; i++ {
 		fmt.Print(" ")
 	}
-	fmt.Println("1 2 3 4 5 6 7")
+	fmt.Println("0 1 2 3 4 5 6")
 }
 func printBody(length int, ccs []CommitCount) {
 	for _, cc := range ccs {
