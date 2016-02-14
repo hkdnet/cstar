@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/codegangsta/cli"
 )
@@ -24,28 +25,27 @@ func main() {
 	app.Commands = Commands
 	app.CommandNotFound = CommandNotFound
 	app.Action = func(c *cli.Context) {
-		ch := make(chan string)
+		ccCh := make(chan CommitCount)
 		pwd, _ := os.Getwd()
-		go search(pwd, ch)
+		go search(pwd, ccCh)
+		ccs := []CommitCount{}
 		for {
-			output, ok := <-ch
+			cc, ok := <-ccCh
 			if !ok {
-				return
+				break
 			}
-			fmt.Println(output)
+			ccs = append(ccs, cc)
 		}
-		os.Chdir(pwd)
+		printCommitCounts(ccs)
 	}
 
 	app.Run(os.Args)
 }
 
-func search(root string, outCh chan string) {
+func search(root string, ccCh chan CommitCount) {
 	dirCh := make(chan string)
-	ccCh := make(chan CommitCount)
 	go gitDirSearch(root, dirCh)
 	go gitDirToLog(dirCh, ccCh)
-	go decorateLine(ccCh, outCh)
 }
 
 type CommitCount struct {
@@ -119,13 +119,64 @@ func sumsToArray(m map[string]int, len int) []int {
 	return counts
 }
 
-func decorateLine(ccCh chan CommitCount, outCh chan string) {
-	for {
-		cc, ok := <-ccCh
-		if !ok {
-			close(outCh)
-			return
-		}
-		outCh <- fmt.Sprintf("%-10s %s", cc.ProjectName, strings.Trim(fmt.Sprintf("%v", cc.Count), "[]"))
+func printCommitCounts(ccs []CommitCount) {
+	maxNameLength := maxProjectNameLength(ccs)
+	for i := 0; i < maxNameLength+1; i++ {
+		fmt.Print(" ")
 	}
+	fmt.Println("1 2 3 4 5 6 7")
+	for _, cc := range ccs {
+		pjLen := utf8.RuneCountInString(cc.ProjectName)
+		padLen := maxNameLength + 1 - pjLen
+		fmt.Print(cc.ProjectName)
+		for i := 0; i < padLen; i++ {
+			fmt.Print(" ")
+		}
+		for _, c := range cc.Count {
+			switch {
+			case c == 0:
+				fmt.Printf(cSprint("red", "D"))
+			case c < 9:
+				fmt.Printf(cSprint("yellow", "M"))
+			default:
+				fmt.Printf(cSprint("green", "L"))
+			}
+			fmt.Print(" ")
+		}
+		fmt.Print("\n")
+	}
+}
+
+func cSprint(color, msg string) string {
+	var colNo string
+	switch color {
+	case "red":
+		colNo = "31"
+	case "green":
+		colNo = "32"
+	case "yellow":
+		colNo = "33"
+	case "blue":
+		colNo = "34"
+	case "magenta":
+		colNo = "35"
+	case "cyan":
+		colNo = "36"
+	case "white":
+		colNo = "37"
+	default:
+		colNo = "30"
+	}
+	return fmt.Sprintf("\033[" + colNo + "m" + msg + "\033[m")
+}
+
+func maxProjectNameLength(ccs []CommitCount) int {
+	max := 0
+	for _, cc := range ccs {
+		tmp := utf8.RuneCountInString(cc.ProjectName)
+		if tmp > max {
+			max = tmp
+		}
+	}
+	return max
 }
