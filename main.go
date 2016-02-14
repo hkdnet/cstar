@@ -53,6 +53,19 @@ type CommitCount struct {
 	Count       []int
 }
 
+func (cc *CommitCount) ToStar(maxLen int) string {
+	pjLen := utf8.RuneCountInString(cc.ProjectName)
+	padLen := maxLen + 1 - pjLen
+	ret := cc.ProjectName
+	for i := 0; i < padLen; i++ {
+		ret += " "
+	}
+	for _, c := range cc.Count {
+		ret += fmt.Sprintf("%s ", countToStar(c))
+	}
+	return strings.Trim(ret, " ")
+}
+
 func gitDirSearch(root string, dirCh chan string) error {
 	err := filepath.Walk(root,
 		func(path string, info os.FileInfo, err error) error {
@@ -132,21 +145,8 @@ func printHeader(length int) {
 }
 func printBody(length int, ccs []CommitCount) {
 	for _, cc := range ccs {
-		pjLen := utf8.RuneCountInString(cc.ProjectName)
-		padLen := length + 1 - pjLen
-		printBodyLine(padLen, cc)
+		fmt.Println(cc.ToStar(length))
 	}
-}
-
-func printBodyLine(padLen int, cc CommitCount) {
-	fmt.Print(cc.ProjectName)
-	for i := 0; i < padLen; i++ {
-		fmt.Print(" ")
-	}
-	for _, c := range cc.Count {
-		fmt.Printf("%s ", countToStar(c))
-	}
-	fmt.Print("\n")
 }
 
 func countToStar(count int) string {
