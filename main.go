@@ -133,17 +133,20 @@ func printCommitCounts(ccs []CommitCount) {
 			fmt.Print(" ")
 		}
 		for _, c := range cc.Count {
-			switch {
-			case c == 0:
-				fmt.Printf(cSprint("red", "D"))
-			case c < 9:
-				fmt.Printf(cSprint("yellow", "M"))
-			default:
-				fmt.Printf(cSprint("green", "L"))
-			}
-			fmt.Print(" ")
+			fmt.Printf("%s ", countToStar(c))
 		}
 		fmt.Print("\n")
+	}
+}
+
+func countToStar(count int) string {
+	switch {
+	case count == 0:
+		return cSprint("red", "D")
+	case count < 9:
+		return cSprint("yellow", "M")
+	default:
+		return cSprint("green", "L")
 	}
 }
 
