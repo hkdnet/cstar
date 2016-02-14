@@ -121,22 +121,32 @@ func sumsToArray(m map[string]int, len int) []int {
 
 func printCommitCounts(ccs []CommitCount) {
 	maxNameLength := maxProjectNameLength(ccs)
-	for i := 0; i < maxNameLength+1; i++ {
+	printHeader(maxNameLength)
+	printBody(maxNameLength, ccs)
+}
+func printHeader(length int) {
+	for i := 0; i < length+1; i++ {
 		fmt.Print(" ")
 	}
 	fmt.Println("1 2 3 4 5 6 7")
+}
+func printBody(length int, ccs []CommitCount) {
 	for _, cc := range ccs {
 		pjLen := utf8.RuneCountInString(cc.ProjectName)
-		padLen := maxNameLength + 1 - pjLen
-		fmt.Print(cc.ProjectName)
-		for i := 0; i < padLen; i++ {
-			fmt.Print(" ")
-		}
-		for _, c := range cc.Count {
-			fmt.Printf("%s ", countToStar(c))
-		}
-		fmt.Print("\n")
+		padLen := length + 1 - pjLen
+		printBodyLine(padLen, cc)
 	}
+}
+
+func printBodyLine(padLen int, cc CommitCount) {
+	fmt.Print(cc.ProjectName)
+	for i := 0; i < padLen; i++ {
+		fmt.Print(" ")
+	}
+	for _, c := range cc.Count {
+		fmt.Printf("%s ", countToStar(c))
+	}
+	fmt.Print("\n")
 }
 
 func countToStar(count int) string {
