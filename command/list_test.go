@@ -1,4 +1,4 @@
-package main
+package command
 
 import (
 	"os"
@@ -74,13 +74,13 @@ func TestSumsToArray(t *testing.T) {
 	if got, want := len(ret), length; got != want {
 		t.Errorf("got: %v\nwant: %v", got, want)
 	}
-	if got, want := ret[0], 3; got != want {
+	if got, want := ret[0], 1; got != want {
 		t.Errorf("got: %v\nwant: %v", got, want)
 	}
 	if got, want := ret[1], 2; got != want {
 		t.Errorf("got: %v\nwant: %v", got, want)
 	}
-	if got, want := ret[2], 1; got != want {
+	if got, want := ret[2], 3; got != want {
 		t.Errorf("got: %v\nwant: %v", got, want)
 	}
 }

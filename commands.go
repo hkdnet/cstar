@@ -7,7 +7,13 @@ import (
 	"github.com/codegangsta/cli"
 )
 
-var GlobalFlags = []cli.Flag{}
+var GlobalFlags = []cli.Flag{
+	cli.IntFlag{
+		Name:  "day, d",
+		Value: 7,
+		Usage: "how many days you'd like to list up",
+	},
+}
 
 var Commands = []cli.Command{}
 
