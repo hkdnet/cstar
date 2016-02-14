@@ -148,26 +148,29 @@ func printCommitCounts(ccs []CommitCount) {
 }
 
 func cSprint(color, msg string) string {
-	var colNo string
-	switch color {
+	colNo := consoleColorNo(color)
+	return fmt.Sprintf("\033[%dm%s\033[m", colNo, msg)
+}
+
+func consoleColorNo(cName string) int {
+	switch cName {
 	case "red":
-		colNo = "31"
+		return 31
 	case "green":
-		colNo = "32"
+		return 32
 	case "yellow":
-		colNo = "33"
+		return 33
 	case "blue":
-		colNo = "34"
+		return 34
 	case "magenta":
-		colNo = "35"
+		return 35
 	case "cyan":
-		colNo = "36"
+		return 36
 	case "white":
-		colNo = "37"
+		return 37
 	default:
-		colNo = "30"
+		return 30
 	}
-	return fmt.Sprintf("\033[" + colNo + "m" + msg + "\033[m")
 }
 
 func maxProjectNameLength(ccs []CommitCount) int {
