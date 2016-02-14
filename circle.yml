@@ -1,0 +1,10 @@
+machine:
+  environment:
+    foo: bar
+    deployment:
+deployment:
+  master:
+    branch: master
+    commands:
+      - go get github.com/aktau/github-release
+      - ruby release.rb
