@@ -17,11 +17,6 @@ var Commands = []cli.Command{
 		Usage:   "",
 		Action:  command.CmdList,
 		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  "file,f",
-				Value: "",
-				Usage: "Not implemented yet...",
-			},
 			cli.IntFlag{
 				Name:  "day, d",
 				Value: 7,

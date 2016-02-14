@@ -15,13 +15,22 @@ import (
 var dayCount int
 
 func CmdList(c *cli.Context) {
+  fs := c.Args()
   dayCount = c.Int("d")
   pwd, _ := os.Getwd()
-  search(pwd)
+  if len(fs) == 0 {
+    fs = []string { pwd }
+  }
+  ccs := []CommitCount{}
+  for _, f := range fs {
+    os.Chdir(pwd)
+    ccs = append(ccs, search(f)...)
+  }
+  printCommitCounts(ccs)
 }
 
 
-func search(root string) {
+func search(root string) []CommitCount {
 	ccCh := make(chan CommitCount)
 	dirCh := make(chan string)
 	go gitDirSearch(root, dirCh)
@@ -34,7 +43,7 @@ func search(root string) {
 		}
 		ccs = append(ccs, cc)
 	}
-	printCommitCounts(ccs)
+  return ccs
 }
 
 type CommitCount struct {
