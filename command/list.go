@@ -12,7 +12,10 @@ import (
   "github.com/codegangsta/cli"
 )
 
+var dayCount int
+
 func CmdList(c *cli.Context) {
+  dayCount = c.Int("d")
   pwd, _ := os.Getwd()
   search(pwd)
 }
@@ -78,7 +81,6 @@ func gitDirToLog(dirCh chan string, logCh chan CommitCount) {
 		os.Chdir(dir + "/../")
 		pwd, _ := os.Getwd()
 		pjName := filepath.Base(pwd)
-		dayCount := 7
 		if raw_log, err := execGitLog(dayCount); err != nil {
 			close(logCh)
 			return
@@ -127,7 +129,15 @@ func printHeader(length int) {
 	for i := 0; i < length+1; i++ {
 		fmt.Print(" ")
 	}
-	fmt.Println("0 1 2 3 4 5 6")
+  msg := ""
+  for i := 0; i < dayCount; i++ {
+    tmp := i
+    for tmp >= 10 {
+      tmp -= 10
+    }
+    msg += fmt.Sprintf("%d ", tmp)
+  }
+	fmt.Println(strings.Trim(msg, ""))
 }
 func printBody(length int, ccs []CommitCount) {
 	for _, cc := range ccs {

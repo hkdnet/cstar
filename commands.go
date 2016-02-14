@@ -25,7 +25,7 @@ var Commands = []cli.Command{
 			cli.IntFlag{
 				Name:  "day, d",
 				Value: 7,
-				Usage: "Not implemented yet...",
+				Usage: "how many days you'd like to list up",
 			},
 		},
 	},
