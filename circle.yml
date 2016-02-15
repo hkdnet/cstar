@@ -7,4 +7,8 @@ deployment:
     branch: master
     commands:
       - go get github.com/aktau/github-release
+      - make release
+      - zip cstar-osx.zip release/osx/cstar
+      - zip cstar-win-x86.zip release/win/x86/cstar.exe
+      - zip cstar-win-x64.zip release/win/x64/cstar.exe
       - ruby release.rb

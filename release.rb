@@ -24,9 +24,9 @@ def create_release(tag)
 end
 
 def upload_file(tag)
-  `github-release upload #{opt} -t #{tag} -n "cstar-OSX" -f #{root_dir}/release/osx/cstar`
-  `github-release upload #{opt} -t #{tag} -n "cstar-x86.exe" -f #{root_dir}/release/win/cstar-x64.exe`
-  `github-release upload #{opt} -t #{tag} -n "cstar-x64.exe" -f #{root_dir}/release/win/cstar-x86.exe`
+  `github-release upload #{opt} -t #{tag} -n "cstar-osx.zip"     -f #{root_dir}/cstar-osx.zip`
+  `github-release upload #{opt} -t #{tag} -n "cstar-win-x86.zip" -f #{root_dir}/cstar-win-x86.zip`
+  `github-release upload #{opt} -t #{tag} -n "cstar-win-x64.zip" -f #{root_dir}/cstar-win-x64.zip`
 end
 
 def delete(tag)
