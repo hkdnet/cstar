@@ -35,7 +35,7 @@ $ cstar /path/to/dir/ /path/to/dir2/
 
 ### Binary
 
-If you have not installed `go` command, [download cstar binary(from here)](hkdnet/cstar/releases) and place it in your `$PATH`.
+If you have not installed `go` command, [download cstar binary(from here)](https://github.com/hkdnet/cstar/releases) and place it in your `$PATH`.
 
 ### Golang
 

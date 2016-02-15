@@ -37,7 +37,7 @@ $ cstar /path/to/dir/ /path/to/dir2/
 
 ### Binary
 
-Go言語を使ったことがない方は[cstarのバイナリをこちらからダウンロードして](hkdnet/cstar/releases) `$PATH` の通っているディレクトリに置いてください。
+Go言語を使ったことがない方は[cstarのバイナリをこちらからダウンロードして](https://github.com/hkdnet/cstar/releases) `$PATH` の通っているディレクトリに置いてください。
 
 ### Golang
 
